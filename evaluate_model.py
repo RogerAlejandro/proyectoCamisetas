@@ -82,12 +82,18 @@ def evaluate(model, test_df, gender_encoder, usage_encoder):
         y_true_gender.extend(labels['gender'])
         y_true_usage.extend(labels['usage'])
 
-    # Decodificar predicciones
-    # Asumiendo que la salida del modelo es una lista o un array [pred_gender, pred_usage]
-    # Si es un solo array concatenado, hay que ajustarlo.
-    # Basado en app.py, parece ser un solo array.
-    pred_gender_indices = np.argmax(y_pred_raw[:, :2], axis=1)
-    pred_usage_indices = np.argmax(y_pred_raw[:, 2:], axis=1)
+    # Decodificar predicciones para un modelo con dos salidas
+    # y_pred_raw es una lista: [predicciones_genero, predicciones_uso]
+    pred_gender_raw = y_pred_raw[0]
+    pred_usage_raw = y_pred_raw[1]
+
+    # Asegurarse que los arrays tengan el mismo tamaño
+    min_len = min(len(pred_gender_raw), len(y_true_gender))
+
+    y_true_gender = y_true_gender[:min_len]
+    y_true_usage = y_true_usage[:min_len]
+    pred_gender_indices = np.argmax(pred_gender_raw[:min_len], axis=1)
+    pred_usage_indices = np.argmax(pred_usage_raw[:min_len], axis=1)
 
     # Asegurarse que los arrays tengan el mismo tamaño
     min_len = min(len(pred_gender_indices), len(y_true_gender))
